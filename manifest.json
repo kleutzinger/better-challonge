@@ -1,0 +1,23 @@
+{
+"manifest_version": 2,
+    "name": "Better Challonge Results",
+    "short_name": "challonge+",
+    "description": "Improves the results on Challonge bracket pages",
+    "version": "0.0.1",
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.challonge.com/*"
+            ],
+            "js": [
+                "jquery.js","tablemaker.js","content.js"
+            ],
+            "run_at": "document_end"
+        }
+    ]
+}
