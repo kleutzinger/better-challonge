@@ -3,7 +3,9 @@ function genWLSpans(p, WL){
     if(WL == "w"){opponents = p.wins_names;   scores = p.wins_scores;}
     else{         opponents = p.losses_names; scores = p.losses_scores;}
     for (const [idx, opp] of opponents.entries()){
-        spans.push(`<span class="${playerList[opp].id +"class"}" title="${scores[idx]}">${opp}</span>`)
+        upset = (WL == 'w' && playerList[opp].seed > p.seed) || (WL == 'l' && playerList[opp].seed < p.seed)
+        if(upset){spans.push(`<span class="${playerList[opp].id +"class"}" title="${scores[idx]}">${opp}</span>`)}
+        else{spans.push(`<span class="${playerList[opp].id +"class"}" title="${scores[idx]}"><i>${opp}</i></span>`)}
     }
     return spans.join(",  ");
 }
@@ -60,8 +62,6 @@ function hoverByClass(classname,colorover,colorout="transparent"){
         }
     }
 }
-
-
 
 function replaceResults(plist){
     $(results.children[1]).empty();

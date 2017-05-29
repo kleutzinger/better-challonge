@@ -87,6 +87,7 @@ function getElimPlacings(){
 }
 
 function getSwissRRPlacings(){
+    results = document.getElementsByClassName('container-fluid -with-content-gutters -width-limited')[0];
     players = document.getElementsByClassName("participant left");
     prevPlacing = -1;
     for (const player of players){
