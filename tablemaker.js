@@ -64,7 +64,9 @@ function hoverByClass(classname,colorover,colorout="transparent"){
 }
 
 function replaceResults(plist){
-    $(results.children[1]).empty();
-    $(results.children[1]).replaceWith(genTable(plist));
-    $(".standings-container").prev("h4").replaceWith('<h4 title="Made by Kevbot"> (Better) Full Results</h4>');
+	description = $(".tournament-description.limited_width");
+	results.empty();
+	if(description){results.append(description)};
+	results.append('<h4 title="Made by Kevbot"> (Better) Full Results</h4>');
+    results.append(genTable(plist));
 }

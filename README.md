@@ -8,3 +8,6 @@ Features:
 v. 0.0.2
 -Fixed RR/Swiss Brackets
 -Upsets are italicized
+
+v. 0.0.3
+-Fixed tournaments with descriptions

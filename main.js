@@ -60,16 +60,17 @@ function parseJSON(json){
 }
 
 function getElimPlacings(){
-    results = document.getElementsByClassName('container-fluid -with-content-gutters -width-limited')[0];
+    results = $(".container-fluid.-with-content-gutters.-width-limited");
+    //results = results.find(".highlighted");
     currentPlacing = 1;
-    top3 = results.children[1].children[0].children[0];
+    top3 = results.find("table")[0];
+    rest = results.find("table")[1];
     top3Names = top3.getElementsByTagName("strong");
     for (let _name of top3Names){
         playerList[_name.textContent].placing = currentPlacing;
         playersPerPlacing['currentPlacing'] = 1;
         currentPlacing += 1;
     }
-    rest = results.children[1].children[1].children[0].children[0];    
     restRounds = rest.getElementsByTagName("strong");
     playersPerPlacing[""+currentPlacing] = 0;
     for (let r in restRounds){
@@ -87,8 +88,8 @@ function getElimPlacings(){
 }
 
 function getSwissRRPlacings(){
-    results = document.getElementsByClassName('container-fluid -with-content-gutters -width-limited')[0];
-    players = document.getElementsByClassName("participant left");
+    results = $('.container-fluid.-with-content-gutters.-width-limited');
+    players = $(".participant.text-left");
     prevPlacing = -1;
     for (const player of players){
         name = player.textContent.trim();
@@ -114,7 +115,7 @@ if (isBracketPage){
         else if(matchJSON &&  ["round robin","swiss"].includes(tournamentType)){    
             getSwissRRPlacings();
         }
-
+		console.log(playerList);
         replaceResults(playerList);
 
         for (let p of Object.values(playerList)){
