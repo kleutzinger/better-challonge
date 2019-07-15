@@ -3,7 +3,7 @@
     "name": "Better Challonge Results",
     "short_name": "challonge+",
     "description": "Improves the results on Challonge bracket pages",
-    "version": "0.0.3",
+    "version": "0.0.6",
     "icons": {
         "16": "/pics/icon16.png",
         "48": "/pics/icon48.png",
