@@ -162,7 +162,7 @@ function generatePlacingString(playerList) {
 	let placingString = '';
 	let sortedPlacings = Object.keys(placingToPlayer).sort(key=>parseInt(key));
 	for (const placing of sortedPlacings){
-		placingString += `${ordinalSuffix(placing)}: ${(placingToPlayer[placing].map(p=>p.name)).join(' / ')}\n`;
+		placingString += `${placing}. ${(placingToPlayer[placing].map(p=>p.name)).join(' / ')}\n`;
 	}
 	return placingString;
 }
@@ -174,8 +174,10 @@ function generateInfoString(json){
 	let date = $('#start-time').text();
 	date = date.substring(0, date.lastIndexOf(' at '));
 	date = $.trim(date);
+	if (date) {date = ` (${date})`;}
+	else {date = '';}
 	let tournamentLink = window.location.href;
-	return `${tournamentName} (${date}) (${playerCount} Entrants)\n${tournamentLink}`;
+	return `${tournamentName}${date} (${playerCount} Entrants)\n${tournamentLink}`;
 }
 
 function generateResultsString(playerList, tourneyJSON){

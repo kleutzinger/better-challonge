@@ -20,3 +20,6 @@ v. 0.0.5
 
 v. 0.0.6
 -Added export results thread button
+
+v. 0.0.7
+-Reverted results to ordinal numbers
