@@ -11,3 +11,12 @@ v. 0.0.2
 
 v. 0.0.3
 -Fixed tournaments with descriptions
+
+v. 0.0.4
+-Don't overwrite bottom table on swiss/RR brackets
+
+v. 0.0.5
+-Fixed for players with weird characters in name (like &)
+
+v. 0.0.6
+-Added export results thread button

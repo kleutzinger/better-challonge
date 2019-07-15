@@ -64,9 +64,13 @@ function hoverByClass(classname,colorover,colorout="transparent"){
 }
 
 function replaceResults(plist){
-	description = $(".tournament-description.limited_width");
-	results.empty();
-	if(description){results.append(description)};
-	results.append('<h4 title="Made by Kevbot"> (Better) Full Results</h4>');
+    description = $(".tournament-description.limited_width");
+    results.empty();
+    if(description){results.append(description)};
+    results.append('<h4 title="Made by Kevbot"> (Better) Full Results</h4>');
     results.append(genTable(plist));
+    let button = $(`<button id='exportButton' class='button'>Export Results</button>`).click(()=>exportButton()).css('color','black');
+    results.append(button);
+    
 }
+

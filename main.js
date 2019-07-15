@@ -2,6 +2,9 @@ var playerList = {};
 var playersPerPlacing = {};
 var tournamentType = "";
 var tournamentState = "?";
+var resultString = '';
+var results = $(".container-fluid.-with-content-gutters.-width-limited");
+    
 
 function addPlayer2(pname){
     if(playerList[pname]){return;} //player already added
@@ -59,15 +62,18 @@ function parseJSON(json){
     }
 }
 
+function decodeName(n){
+    return $('<textarea />').html(n).text();
+}
+
 function getElimPlacings(){
-    results = $(".container-fluid.-with-content-gutters.-width-limited");
     //results = results.find(".highlighted");
     currentPlacing = 1;
     top3 = results.find("table")[0];
     rest = results.find("table")[1];
     top3Names = top3.getElementsByTagName("strong");
     for (let _name of top3Names){
-        playerList[_name.textContent].placing = currentPlacing;
+        playerList[decodeName(_name.textContent)].placing = currentPlacing;
         playersPerPlacing['currentPlacing'] = 1;
         currentPlacing += 1;
     }
@@ -76,8 +82,8 @@ function getElimPlacings(){
     for (let r in restRounds){
         if (typeof(restRounds[r]) == 'object'){
             names = restRounds[r].innerHTML.split("<br>");
-            for(let n in names){
-                playerList[names[n]].placing = currentPlacing;
+            for(let n of names){
+                playerList[decodeName(n)].placing = currentPlacing;
                 playersPerPlacing[currentPlacing.toString()] += 1;;
             }
             currentPlacing += names.length;
@@ -88,16 +94,15 @@ function getElimPlacings(){
 }
 
 function getSwissRRPlacings(){
-    results = $('.container-fluid.-with-content-gutters.-width-limited');
+    results = $('.container-fluid.-with-content-gutters.-width-limited').first();
     players = $(".participant.text-left");
-    prevPlacing = -1;
     for (const player of players){
         name = player.textContent.trim();
+        name = decodeName(name);
         placing = $(player).parent().children()[0].textContent;
         placing = parseInt(placing);
         playerList[name].placing = placing;
-        if(placing == prevPlacing){playersPerPlacing[placing] += 1;}
-        prevPlacing = placing;
+        playersPerPlacing[placing] += 1;
     }
 }
 
@@ -105,6 +110,7 @@ isBracketPage = $(document.body).attr('class').search("tournaments tournaments-s
 
 if (isBracketPage){
     matchJSON = getJSON();
+    console.log('bracket.json:', matchJSON);
     if (matchJSON) {parseJSON(matchJSON);}
     if (tournamentState == "complete"){
 
@@ -115,7 +121,9 @@ if (isBracketPage){
         else if(matchJSON &&  ["round robin","swiss"].includes(tournamentType)){    
             getSwissRRPlacings();
         }
-		console.log(playerList);
+		console.log('players.json:', playerList);
+		resultString = generateResultsString(playerList, matchJSON);
+        console.log(resultString);
         replaceResults(playerList);
 
         for (let p of Object.values(playerList)){
@@ -123,3 +131,62 @@ if (isBracketPage){
         }
     }
 }
+
+
+function generatePlacingString(playerList) {
+	// group players by placing
+	let placingToPlayer = {};
+	for (const player of Object.values(playerList)){
+		let curPlacing = player.placing;
+		if (placingToPlayer[curPlacing]){
+			placingToPlayer[curPlacing].push(player);
+		}
+		else {
+			placingToPlayer[curPlacing] = [player];
+		}
+	}
+	function ordinalSuffix(i) { // https://stackoverflow.com/a/13627586
+		var j = i % 10,
+			k = i % 100;
+		if (j == 1 && k != 11) {
+			return i + "st";
+		}
+		if (j == 2 && k != 12) {
+			return i + "nd";
+		}
+		if (j == 3 && k != 13) {
+			return i + "rd";
+		}
+		return i + "th";
+	}
+	let placingString = '';
+	let sortedPlacings = Object.keys(placingToPlayer).sort(key=>parseInt(key));
+	for (const placing of sortedPlacings){
+		placingString += `${ordinalSuffix(placing)}: ${(placingToPlayer[placing].map(p=>p.name)).join(' / ')}\n`;
+	}
+	return placingString;
+}
+
+function generateInfoString(json){
+	let tournamentName = document.title.replace(' - Challonge', '');
+	let playerCount = $('#wrap > div.tournament-banner > div.tournament-banner-body > div.main > div > ul > li:nth-child(1) > div').text();
+	playerCount = parseInt(playerCount);
+	let date = $('#start-time').text();
+	date = date.substring(0, date.lastIndexOf(' at '));
+	date = $.trim(date);
+	let tournamentLink = window.location.href;
+	return `${tournamentName} (${date}) (${playerCount} Entrants)\n${tournamentLink}`;
+}
+
+function generateResultsString(playerList, tourneyJSON){
+	return generateInfoString(tourneyJSON) + '\n' + generatePlacingString(playerList);
+}
+
+function exportButton(){
+	if ($("#exportButton").text() !== 'Exported:'){
+		results.append($('<textarea>').css({'width':'50em','min-height':'300px', 'color':'black'}).text(resultString)).select();
+	}
+	$("#exportButton").text('Exported:')
+	
+}
+
