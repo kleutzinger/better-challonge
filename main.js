@@ -167,21 +167,21 @@ function generatePlacingString(playerList) {
 	return placingString;
 }
 
-function generateInfoString(json){
+function generateInfoString(playerList, json){
 	let tournamentName = document.title.replace(' - Challonge', '');
-	let playerCount = $('#wrap > div.tournament-banner > div.tournament-banner-body > div.main > div > ul > li:nth-child(1) > div').text();
-	playerCount = parseInt(playerCount);
+	let playerCount = Object.keys(playerList).length
 	let date = $('#start-time').text();
 	date = date.substring(0, date.lastIndexOf(' at '));
 	date = $.trim(date);
 	if (date) {date = ` (${date})`;}
 	else {date = '';}
 	let tournamentLink = window.location.href;
+	tournamentLink = tournamentLink.split('?')[0];
 	return `${tournamentName}${date} (${playerCount} Entrants)\n${tournamentLink}`;
 }
 
 function generateResultsString(playerList, tourneyJSON){
-	return generateInfoString(tourneyJSON) + '\n' + generatePlacingString(playerList);
+	return generateInfoString(playerList, tourneyJSON) + '\n' + generatePlacingString(playerList);
 }
 
 function exportButton(){
