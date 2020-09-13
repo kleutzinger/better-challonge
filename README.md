@@ -1,9 +1,12 @@
+[Source Code](https://github.com/kleutzinger/better-challonge)  
+[Chrome Webstore](https://chrome.google.com/webstore/detail/better-challonge-results/nlmopkefkemlpdpfkgllbeifljhkfeno)  
+
+
 Replaces the results on challonge.com brackets with a more informative table.
 Features:
 -Shows every player's wins and losses
 -Hover over wins and losses to show game counts
 -Hover over participants to see their seed
--Highlights participants when name is hovered over in w/l section
 
 v. 0.0.2
 -Fixed RR/Swiss Brackets
@@ -23,3 +26,9 @@ v. 0.0.6
 
 v. 0.0.7
 -Reverted results to ordinal numbers
+
+v. 0.0.8
+-Fixed NaN players and ? in tournament urls
+
+v. 0.0.9
+-Challonge updated itself, this extension only supports double elimination brackets right now
