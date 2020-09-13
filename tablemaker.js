@@ -45,7 +45,7 @@ function genTable(plist) {
         <th>Losses</th>
         <th>Wins</th></tr></thead><tbody>
     `;
-  lastPlacing = -1;
+  lastPlacing = -99;
   for (const [ idx, p ] of pArray.entries()) {
     if (lastPlacing != p.placing) {
       firstlines = `<tr><td class="rank" rowspan="${playersPerPlacing[

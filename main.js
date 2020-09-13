@@ -1,5 +1,7 @@
 var playerList = {};
-var playersPerPlacing = {};
+var playersPerPlacing = { 1: 1, 2: 1, 3: 1, '-1': 2 };
+
+var placement_by_round = {};
 var tournamentType = '';
 var tournamentState = '?';
 var resultString = '';
@@ -21,7 +23,19 @@ function addPlayer2(pname) {
   playerList[pname] = plyrObj;
 }
 
+function SetFirstAndSecondPlace() {
+  const first_tag = $(
+    'body > div.content-wrapper.-with-ads > div:nth-child(5) > div > div > div:nth-child(2) > div > div:nth-child(1) > div.body > div.list > div > div.details > h5'
+  ).text();
+  const second_tag = $(
+    'body > div.content-wrapper.-with-ads > div:nth-child(5) > div > div > div:nth-child(2) > div > div:nth-child(2) > div.body > div.list > div > div.details > h5'
+  ).text();
+  playerList[first_tag].placing = 1;
+  playerList[second_tag].placing = 2;
+}
+
 function getJSON() {
+  console.log('getJSON()');
   cdataParent = document.getElementsByClassName('full-screen-target')[0];
   if (!cdataParent) {
     return false;
@@ -33,7 +47,7 @@ function getJSON() {
   return JSON.parse(json);
 }
 
-function parseJSONMatch(m) {
+function parseJSONMatch(m, placing_this_round) {
   if (m.state != 'complete') {
     return false;
   }
@@ -59,29 +73,54 @@ function parseJSONMatch(m) {
     winner = p2name;
     loser = p1name;
   }
-
   playerList[winner].wins_names.push(loser);
   playerList[winner].wins_scores.push(score);
+  // console.log(winner, loser);
+  // console.log(playerList[winner], playerList[loser]);
   playerList[loser].losses_names.push(winner);
   playerList[loser].losses_scores.push(flipScore(score));
+  if (placing_this_round) {
+    playerList[loser].placing = placing_this_round;
+  }
 }
 
-function parseJSON(json) {
+function parseTournamentJson(json) {
   tournamentType = json.tournament.tournament_type;
   tournamentState = json.tournament.state;
-  rounds = json.matches_by_round;
+  const matches_by_round = json.matches_by_round;
+  const lsr_round_nos = Object.keys(matches_by_round)
+    .filter((k) => k <= 0)
+    .sort((a, b) => {
+      parseInt(a) < parseInt(b);
+    });
+  let current_placing = json.entrant_count + 1;
+  lsr_round_nos.forEach((round_no) => {
+    // should be only losers rounds
+
+    // how many sets in this losers round, (how many players eliminated)
+    const elimination_round_count = matches_by_round[round_no].length;
+    // what place you get
+    current_placing -= elimination_round_count;
+    playersPerPlacing[current_placing] = elimination_round_count;
+    placement_by_round[round_no] = current_placing;
+  });
+  rounds = matches_by_round;
   for (var round in rounds) {
     for (var match in rounds[round]) {
-      parseJSONMatch(rounds[round][match]);
+      parseJSONMatch(rounds[round][match], placement_by_round[round]);
     }
   }
+  SetFirstAndSecondPlace();
+  console.log('after match parsing:');
+  console.log('players per placing', playersPerPlacing);
+  console.log('player_list', playerList);
 }
 
 function decodeName(n) {
   return $('<textarea />').html(n).text();
 }
 
-function getElimPlacings() {
+function getElimPlacings_old() {
   //results = results.find(".highlighted");
   currentPlacing = 1;
   top3 = results.find('table')[0];
@@ -125,22 +164,24 @@ isBracketPage =
   $(document.body).attr('class').search('tournaments tournaments-show') != -1;
 
 if (isBracketPage) {
-  matchJSON = getJSON();
-  console.log('bracket.json:', matchJSON);
-  if (matchJSON) {
-    parseJSON(matchJSON);
+  let tourney_json = getJSON();
+  console.log('bracket.json:', tourney_json);
+  tourney_json.entrant_count = get_entrant_count();
+  if (tourney_json) {
+    parseTournamentJson(tourney_json);
   }
+
   if (tournamentState == 'complete') {
-    if (matchJSON && tournamentType.search('elimination') != -1) {
-      getElimPlacings();
+    if (tourney_json && tournamentType.search('elimination') != -1) {
+      // moved logic to parseTournamentJson
     } else if (
-      matchJSON &&
+      tourney_json &&
       [ 'round robin', 'swiss' ].includes(tournamentType)
     ) {
+      console.log('better challonge: swiss/rr no longer supported?');
       getSwissRRPlacings();
     }
-    console.log('players.json:', playerList);
-    resultString = generateResultsString(playerList, matchJSON);
+    resultString = generateResultsString(playerList, tourney_json);
     console.log(resultString);
     replaceResults(playerList);
 
@@ -148,6 +189,16 @@ if (isBracketPage) {
       hoverByClass(p.id + 'class', 'gray');
     }
   }
+}
+
+function get_entrant_count() {
+  return parseInt(
+    $(
+      'body > div.tournament-banner > div.tournament-banner-body > div.main > div > ul > li:nth-child(1) > div'
+    )
+      .text()
+      .split(' ')[0]
+  );
 }
 
 function generatePlacingString(playerList) {
